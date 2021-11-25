@@ -1,7 +1,8 @@
 import { Request } from "itty-router";
 import { getSwaps, getTokens, Token } from "../lib/thegraph";
 import { generatePairId } from "../lib/pairs";
-import { DEFIPLAZA_APP_URL } from "./defiplaza";
+import { DEFIPLAZA_APP_URL, DEFIPLAZA_WEB_URL } from "./defiplaza";
+import { dfpResponse } from "../lib/util";
 
 type Market = {
 	id: string,
@@ -24,15 +25,13 @@ type Trade = {
 	side: string, //"buy" | "sell",
 }
 
-const returnJsonheaders = { 'Content-type': 'application/json' }
-
 export function handleInfoRequest(request: Request): Response {
-	return new Response(JSON.stringify({
+	return dfpResponse({
 		"name": "DefiPlaza",
-		"description": "DefiPlaza is a decentralized exchange. There are many other decentralized exchanges out there that you may already be familiar with, for example UniSwap. What makes DefiPlaza stand out from the crowd is that it’s highly optimized to offer the lowest possible cost to the end user. Trading fees and gas costs are significantly cheaper than at other platforms. We offer 120 direct trading pairs between the top 16 DeFi tokens, many of which can’t be found anywhere else. Defi Plaza is about making DeFi affordable again, even on Ethereum! DefiPlaza is a decentralized exchange. There are many other decentralized exchanges out there that you may already be familiar with, for example UniSwap. What makes DefiPlaza stand out from the crowd is that it’s highly optimized to offer the lowest possible cost to the end user. Trading fees and gas costs are significantly cheaper than at other platforms. We offer 120 direct trading pairs between the top 16 DeFi tokens, many of which can’t be found anywhere else. Defi Plaza is about making DeFi affordable again, even on Ethereum!",
+		"description": "DefiPlaza is a decentralized exchange on Ethereum. Like other exchanges, it offers trades between tokens by functioning as an Automated Market Making (AMM). What makes DefiPlaza special is that it is highly optimised to offer the lowest possible trade cost to the end user. Gas costs per trade are the lowest in the industry, and the transaction fees are very competitive at 0.1% of value traded. With the continued congestion on the network and the rising price of the native ETH token, saving on gas when doing any transaction on Ethereum is more important than ever before.\n\r\n\rThe way DefiPlaza makes such cheap trade possible is by building the entire exchange into a single smart contract, which can then be highly optimised for minimum gas consumption by hardcoding to 16 tokens. Any of these tokens can be traded against any other of these tokens, resulting in a total of 120 trading pairs. Once it has sufficient liquidity DefiPlaza will be the cheapest option for the vast majority of all swaps in DeFi. DefiPlaza is about making DeFi affordable again, even on Ethereum!",
 		"location": "Netherlands",
-		"logo": "https://hub.defiplaza.net/wp-content/uploads/sites/5/2021/10/defiplaza-logo-square.svg",
-		"website": DEFIPLAZA_APP_URL,
+		"logo": DEFIPLAZA_APP_URL + "/assets/images/brand/defiplaza-logo-square.svg",
+		"website": DEFIPLAZA_WEB_URL,
 		"twitter": "defiplaza",
 		"version": "1.0",
 		"capability": {
@@ -42,7 +41,7 @@ export function handleInfoRequest(request: Request): Response {
 			"candles": false,
 			"ticker": false
 		}
-	}), { headers: returnJsonheaders });
+	});
 }
 
 export async function handleMarketsRequest(request: Request): Promise<Response> {
@@ -53,25 +52,31 @@ export async function handleMarketsRequest(request: Request): Promise<Response> 
 		for (let tokenB of symbols) {
 			// No token pairs of same symbol
 			// and no tokens where A is alfabetaically larger than B
-			if (tokenA >= tokenB) {
+			if (tokenA.symbol >= tokenB.symbol) {
 				continue;
 			}
 
-			let pairId = generatePairId(tokenA, tokenB);
+			let pairId = generatePairId(tokenA.symbol, tokenB.symbol);
+			let active = true;
+
+			if ((tokenA.tokenAmount && tokenA.tokenAmount <= 0) ||
+				(tokenB.tokenAmount && tokenB.tokenAmount <= 0)) {
+				active = false;
+			}
 
 			markets.push({
 				id: pairId,
 				type: 'spot',
-				base: tokenA,
-				quote: tokenB,
-				active: true,
-				market_url: DEFIPLAZA_APP_URL + '/swap?from=' + tokenA + '&to=' + tokenB,
-				description: 'DefiPlaza trade pair for ' + tokenA + ' and ' + tokenB
+				base: tokenA.symbol,
+				quote: tokenB.symbol,
+				active: active,
+				market_url: DEFIPLAZA_APP_URL + '/swap?from=' + tokenA.symbol + '&to=' + tokenB.symbol,
+				description: 'DefiPlaza trade pair for ' + tokenA.symbol + ' and ' + tokenB.symbol
 			} as Market)
 		}
 	}
 
-	return new Response(JSON.stringify(markets), { headers: returnJsonheaders });
+	return dfpResponse(markets);
 }
 
 // export async function handleMarketsRequest(request: Request): Promise<Response> {
@@ -121,24 +126,27 @@ export async function handleTradesRequest(request: Request): Promise<Response> {
 		let quoteAmount: string;
 		let side = "buy";
 
+		// for pair DFP2_USDC, a transaction from DFP2 to USDC is a sell
 		if (swap.inputToken.symbol === tokenPair[0]) {
 			base = swap.inputToken;
 			baseAmount = swap.inputAmount;
 			quote = swap.outputToken;
 			quoteAmount = swap.outputAmount;
-			side = "buy";
+			side = "sell";
+		// for pair DFP2_USDC, a transaction from USDC to DFP2 is a buy
 		} else {
 			quote = swap.inputToken;
 			quoteAmount = swap.inputAmount;
 			base = swap.outputToken;
 			baseAmount = swap.outputAmount;
-			side = "sell";
+			side = "buy";
 		}
 
 		let trade: Trade = {
 			id: swap.id,
 			timestamp: new Date(swap.timestamp * 1000).toISOString(),
-			price: (parseFloat(baseAmount) / parseFloat(quoteAmount)).toString(),
+			// display price in base amount. So USDC amount / DFP2 amount = DFP2 price
+			price: (parseFloat(quoteAmount) / parseFloat(baseAmount)).toString(),
 			amount: baseAmount,
 			amount_quote: quoteAmount,
 			order: swap.transaction.id,
@@ -149,13 +157,13 @@ export async function handleTradesRequest(request: Request): Promise<Response> {
 		trades.push(trade);
 	}
 
-	return new Response(JSON.stringify(trades), { headers: returnJsonheaders });
+	return dfpResponse(trades);
 }
 
 export function handleOrderBookRequest(request: Request): Response {
-	return new Response(JSON.stringify({
+	return dfpResponse({
 		"bids": [],
 		"asks": [],
 		"timestamp": new Date().toUTCString()
-	}), { headers: returnJsonheaders });
+	});
 }

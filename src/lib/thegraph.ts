@@ -13,7 +13,7 @@ const tokensQuery = `
 
 export type Token = {
 	symbol: string,
-	tokenAmount?: string
+	tokenAmount?: number
 }
 
 export type Swap = {
@@ -51,26 +51,23 @@ async function sendRequest(query: any) {
 	return await response.json();
 }
 
-export async function getTokens(): Promise<string[]> {
+export async function getTokens(): Promise<Token[]> {
 	const result = await sendRequest(tokensQuery);
-	let symbols: string[] = [];
-
-	for (let token of result.data.tokens as Token[]) {
-		symbols.push(token.symbol);
-	}
-
-	return symbols;
+	
+	return result.data.tokens;
 }
 
-export async function getSwaps(pair: string, since?: string): Promise<any[]> {
+export async function getSwaps(pair: string, sinceId?: string): Promise<any[]> {
 	let sinceTimestamp = 0;
 	
-	if (since) {
-		const swapResult = await sendRequest(`{
-			swap(id:"${ since }") {
+	if (sinceId) {
+		const timestampQuery = `{
+			swap(id:"${sinceId}") {
 				timestamp
 			}
-		}`);
+		}`;
+
+		const swapResult = await sendRequest(timestampQuery);
 
 		sinceTimestamp = swapResult.data.swap.timestamp;
 	}
@@ -97,8 +94,8 @@ export async function getSwaps(pair: string, since?: string): Promise<any[]> {
 			outputAmount
 			swapUSD
 		}
-	}
-`;
+	}`;
+	
 	const result = await sendRequest(swapsQuery);
 
 	return result.data.swaps as Swap[];

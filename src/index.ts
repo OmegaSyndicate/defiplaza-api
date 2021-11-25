@@ -1,12 +1,9 @@
 import { Request, Router } from 'itty-router'
+import { handleDFP2TotalSupplyRequest } from './exchanges/cmc';
 import { handleDFP2Request } from './exchanges/defiplaza';
 import { handleInfoRequest, handleMarketsRequest, handleOrderBookRequest, handleTradesRequest } from './exchanges/nomics';
 
 const router = Router();
-
-router.get("/", () => {
-  return new Response("Hello, world! This is the root page of your Worker template.")
-});
 
 /**
  * DefiPlaza
