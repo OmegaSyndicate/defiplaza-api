@@ -30,8 +30,18 @@ router.get("/nomics/trades?", (request: Request) => {
   return handleTradesRequest(request);
 });
 
-router.get("/orders/snapshot", (request: Request) => {
+router.get("/nomics/orders/snapshot", (request: Request) => {
   return handleOrderBookRequest(request);
+});
+
+/**
+ * CMC DFP2 token
+ */
+router.get("/cmc/dfp2-total-supply", (request: Request) => {
+  return handleDFP2TotalSupplyRequest(request);
+});
+router.get("/cmc/dfp2-circulating-supply", (request: Request) => {
+  return handleDFP2TotalSupplyRequest(request);
 });
 
 // 404
