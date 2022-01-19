@@ -4,7 +4,7 @@ const GRAPH_ENDPOINT = 'https://api.thegraph.com/subgraphs/name/omegasyndicate/d
 
 const tokensQuery = `
 	query {
-		tokens(first: 16, orderBy: symbol, orderDirection: asc) {
+		tokens(orderBy: symbol, orderDirection: asc) {
 			symbol
 			tokenAmount
 		}
