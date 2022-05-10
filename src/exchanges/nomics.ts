@@ -28,9 +28,9 @@ type Trade = {
 export function handleInfoRequest(request: Request): Response {
 	return dfpResponse({
 		"name": "DefiPlaza",
-		"description": "DefiPlaza is the cheapest decentralized exchange on Ethereum. Like other exchanges, it offers trades between tokens by functioning as an Automated Market Maker (AMM). What makes DefiPlaza special is that it is highly optimised to offer the lowest possible trade cost to the end user. Gas costs per trade are the lowest in the industry, and the transaction fees are very competitive at 0.1% of value traded. With the continued congestion on the network and the rising price of the native ETH token, saving on gas when doing any transaction on Ethereum is more important than ever before.\n\r\n\rThe way DefiPlaza makes such cheap trade possible is by building the entire exchange into a single smart contract, which can then be highly optimised for minimum gas consumption by hardcoding to 16 tokens. Any of these tokens can be traded against any other of these tokens, resulting in a total of 120 trading pairs. Once it has sufficient liquidity DefiPlaza will be the cheapest option for the vast majority of all swaps in DeFi. DefiPlaza is about making DeFi affordable again, even on Ethereum!",
+		"description": "DefiPlaza has the lowest fees of exchange on Ethereum. Like other exchanges. It offers trades between tokens by functioning as an Automated Market Maker (AMM). What makes DefiPlaza special is that it is highly optimised to offer the lowest possible trade cost to the end user. Gas costs per trade are the lowest in the industry, and the transaction fees are very competitive at 0.1% of value traded. With the continued congestion on the network and the rising price of the native ETH token, saving on gas when doing any transaction on Ethereum is more important than ever before.\n\r\n\rThe way DefiPlaza makes such cheap trade possible is by building the entire exchange into a single smart contract, which can then be highly optimised for minimum gas consumption by hardcoding to 16 tokens. Any of these tokens can be traded against any other of these tokens, resulting in a total of 120 trading pairs. Once it has sufficient liquidity DefiPlaza will be the cheapest option for the vast majority of all swaps in DeFi. DefiPlaza is about making DeFi affordable again, even on Ethereum!",
 		"location": "Netherlands",
-		"logo": DEFIPLAZA_APP_URL + "/assets/images/brand/defiplaza-logo-square.svg",
+		"logo": "https://static.defiplaza.net/website/uploads/2022/02/25154456/transparent-icon-purple.svg",
 		"website": DEFIPLAZA_WEB_URL,
 		"twitter": "defiplaza",
 		"version": "1.0",
@@ -115,6 +115,18 @@ export async function handleTradesRequest(request: Request): Promise<Response> {
 	const pair = request.query?.market || "ETH_DFP2";
 	const since = request.query?.since;
 
+	const cacheKey = request.url;
+	const cache = caches.default;
+
+	let response = await cache.match(cacheKey);
+
+	if (response) {
+		console.log("Returning from cache:", cacheKey);
+		return response;
+	}
+
+	// Result is not in cache
+	console.log("Result is not in cache:", cacheKey);
 	const tokenPair = pair.split("_");
 	const swaps = await getSwaps(pair, since);
 	let trades: Trade[] = [];
@@ -157,7 +169,20 @@ export async function handleTradesRequest(request: Request): Promise<Response> {
 		trades.push(trade);
 	}
 
-	return dfpResponse(trades);
+	response = dfpResponse(trades);
+
+	// Cache API respects Cache-Control headers. Setting s-max-age to 10
+	// will limit the response to be in cache for X seconds max
+
+	// Any changes made to the response here will be reflected in the cached value
+	response.headers.append('Cache-Control', 's-maxage=180');
+
+	// Store the fetched response as cacheKey
+	// Use waitUntil so you can return the response without blocking on
+	// writing to cache
+	await cache.put(cacheKey, response.clone());
+
+	return response;
 }
 
 export function handleOrderBookRequest(request: Request): Response {
