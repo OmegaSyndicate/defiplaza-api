@@ -69,7 +69,9 @@ export async function getSwaps(pair: string, sinceId?: string): Promise<any[]> {
 
 		const swapResult = await sendRequest(timestampQuery);
 
-		sinceTimestamp = swapResult.data.swap.timestamp;
+		if (swapResult.data.swap?.timestamp) {
+			sinceTimestamp = swapResult.data.swap.timestamp;
+		}
 	}
 
 	const swapsQuery = `
