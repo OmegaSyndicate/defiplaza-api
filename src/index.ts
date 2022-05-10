@@ -2,8 +2,13 @@ import { Request, Router } from 'itty-router'
 import { handleDFP2TotalSupplyRequest } from './exchanges/cmc';
 import { handleDFP2Request } from './exchanges/defiplaza';
 import { handleInfoRequest, handleMarketsRequest, handleOrderBookRequest, handleTradesRequest } from './exchanges/nomics';
+import { handleContact } from './lib/contact';
 
 const router = Router();
+
+router.post("/contact", async (request: Request) => {
+  return handleContact(request);
+});
 
 /**
  * DefiPlaza
