@@ -1,5 +1,5 @@
 import { Request } from "itty-router";
-import { getSwaps, getTokens, Token } from "../lib/thegraph";
+import { getSwapsByPair, getSwapsByPairSinceTransaction, getTokens, Token } from "../lib/thegraph";
 import { generatePairId } from "../lib/pairs";
 import { DEFIPLAZA_APP_URL, DEFIPLAZA_WEB_URL } from "./defiplaza";
 import { dfpResponse } from "../lib/util";
@@ -79,41 +79,9 @@ export async function handleMarketsRequest(request: Request): Promise<Response> 
 	return dfpResponse(markets);
 }
 
-// export async function handleMarketsRequest(request: Request): Promise<Response> {
-// 	const pairs = await getActivePairs();
-// 	let markets: Market[] = [];
-
-// 	for (let pair of pairs) {
-// 		// for (let tokenB of symbols) {
-// 		// 	// No token pairs of same symbol
-// 		// 	// and no tokens where A is alfabetaically larger than B
-// 		// 	if (tokenA >= tokenB) {
-// 		// 		continue;
-// 		// 	}
-
-// 		// let pairId = generatePairId(tokenA, tokenB);
-// 		const tokens = pair.id.split('_');
-// 		const tokenA = tokens[0];
-// 		const tokenB = tokens[1];
-
-// 		markets.push({
-// 			id: pair.id,
-// 			type: 'spot',
-// 			base: tokenA,
-// 			quote: tokenB,
-// 			active: true,
-// 			market_url: DEFIPLAZA_APP_URL + '/swap?from=' + tokenA + '&to=' + tokenB,
-// 			description: 'DefiPlaza trade pair for ' + tokenA + ' and ' + tokenB
-// 		} as Market)
-// 		// }
-// 	}
-
-// 	return new Response(JSON.stringify(markets), { headers: returnJsonheaders });
-// }
-
 export async function handleTradesRequest(request: Request): Promise<Response> {
-	const pair = request.query?.market || "ETH_DFP2";
-	const since = request.query?.since;
+	const pair = request.query?.market || "DFP2_ETH";
+	const lastTransactionId = request.query?.since;
 
 	const cacheKey = request.url;
 	const cache = caches.default;
@@ -128,7 +96,7 @@ export async function handleTradesRequest(request: Request): Promise<Response> {
 	// Result is not in cache
 	console.log("Result is not in cache:", cacheKey);
 	const tokenPair = pair.split("_");
-	const swaps = await getSwaps(pair, since);
+	const swaps = await getSwapsByPairSinceTransaction(pair, lastTransactionId);
 	let trades: Trade[] = [];
 
 	for (let swap of swaps) {
@@ -171,11 +139,12 @@ export async function handleTradesRequest(request: Request): Promise<Response> {
 
 	response = dfpResponse(trades);
 
-	// Cache API respects Cache-Control headers. Setting s-max-age to 10
+	// Cache API respects Cache-Control headers. Setting s-max-age to X
 	// will limit the response to be in cache for X seconds max
+	const cacheSeconds = 300;
 
 	// Any changes made to the response here will be reflected in the cached value
-	response.headers.append('Cache-Control', 's-maxage=180');
+	response.headers.append('Cache-Control', 's-maxage=' + cacheSeconds);
 
 	// Store the fetched response as cacheKey
 	// Use waitUntil so you can return the response without blocking on
