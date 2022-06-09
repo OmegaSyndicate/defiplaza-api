@@ -30,7 +30,7 @@ export function handleInfoRequest(request: Request): Response {
 		"name": "DefiPlaza",
 		"description": "DefiPlaza has the lowest fees of exchange on Ethereum. Like other exchanges. It offers trades between tokens by functioning as an Automated Market Maker (AMM). What makes DefiPlaza special is that it is highly optimised to offer the lowest possible trade cost to the end user. Gas costs per trade are the lowest in the industry, and the transaction fees are very competitive at 0.1% of value traded. With the continued congestion on the network and the rising price of the native ETH token, saving on gas when doing any transaction on Ethereum is more important than ever before.\n\r\n\rThe way DefiPlaza makes such cheap trade possible is by building the entire exchange into a single smart contract, which can then be highly optimised for minimum gas consumption by hardcoding to 16 tokens. Any of these tokens can be traded against any other of these tokens, resulting in a total of 120 trading pairs. Once it has sufficient liquidity DefiPlaza will be the cheapest option for the vast majority of all swaps in DeFi. DefiPlaza is about making DeFi affordable again, even on Ethereum!",
 		"location": "Netherlands",
-		"logo": "https://static.defiplaza.net/website/uploads/2022/02/25154456/transparent-icon-purple.svg",
+		"logo": "https://static.defiplaza.net/website/uploads/2022/02/25160151/round-profile.png",
 		"website": DEFIPLAZA_WEB_URL,
 		"twitter": "defiplaza",
 		"version": "1.0",
