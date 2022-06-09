@@ -19,6 +19,7 @@
     ]
   },
   "dependencies": {
+    "@ethersproject/bignumber": "^5.6.2",
     "aws4fetch": "^1.0.13",
     "itty-router": "^2.1.9",
     "nomics-platform": "^1.0.1",

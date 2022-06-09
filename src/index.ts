@@ -16,6 +16,12 @@ router.post("/contact", async (request: Request) => {
 router.get("/dfp2", (request: Request) => {
   return handleDFP2Request(request);
 });
+router.get("/dfp2/total-supply", (request: Request) => {
+  return handleDFP2TotalSupplyRequest(request);
+});
+router.get("/dfp2/circulating-supply", (request: Request) => {
+  return handleDFP2CirculatingSupplyRequest(request);
+});
 
 /**
  * Nomics
@@ -37,13 +43,28 @@ router.get("/nomics/orders/snapshot", (request: Request) => {
 });
 
 /**
- * CMC DFP2 token
+ * CoinGecko
+ */
+router.get("/cg/pairs", (request: Request) => {
+  return handleCGPairsRequest(request);
+});
+
+router.get("/cg/tickers", (request: Request) => {
+  return handleCGTickerRequest(request);
+});
+
+router.get("/cg/historical_trades", (request: Request) => {
+  return handleCGHistoryRequest(request);
+});
+
+/**
+ * CoinMarketCap DFP2 token
  */
 router.get("/cmc/dfp2-total-supply", (request: Request) => {
   return handleDFP2TotalSupplyRequest(request);
 });
 router.get("/cmc/dfp2-circulating-supply", (request: Request) => {
-  return handleDFP2TotalSupplyRequest(request);
+  return handleDFP2CirculatingSupplyRequest(request);
 });
 
 // 404
