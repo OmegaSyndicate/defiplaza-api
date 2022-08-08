@@ -96,7 +96,16 @@ export async function handleCGTickerRequest(request: Request): Promise<Response>
 			}
 
 			const pairId = generatePairId(tokenA.symbol, tokenB.symbol);
-			const price = tokenA.tokenAmount / tokenB.tokenAmount;
+			let price = 0;
+
+			let pairTokens = pairId.split('_');
+
+			// display price in base amount. So USDC amount / DFP2 amount = DFP2 price
+			if (pairTokens[0] == tokenA.symbol) {
+				price = tokenB.tokenAmount / tokenA.tokenAmount;
+			} else {
+				price = tokenA.tokenAmount / tokenB.tokenAmount;
+			}
 
 			// Get swaps of last 24 hours			
 			let baseVolume = 0;
@@ -116,14 +125,16 @@ export async function handleCGTickerRequest(request: Request): Promise<Response>
 					baseVolume += parseFloat(swap.inputAmount);
 					quoteVolume += parseFloat(swap.outputAmount);
 
-					swapPrice = parseFloat(swap.inputToken.tokenAmount) / parseFloat(swap.outputToken.tokenAmount)
+					// display price in base amount. So USDC amount / DFP2 amount = DFP2 price
+					swapPrice = parseFloat(swap.outputAmount) / parseFloat(swap.inputAmount)
 
 				// for pair DFP2_USDC, a transaction from USDC to DFP2 is a buy
 				} else {
 					quoteVolume += parseFloat(swap.inputAmount);
 					baseVolume += parseFloat(swap.outputAmount);
 
-					swapPrice = parseFloat(swap.outputToken.tokenAmount) / parseFloat(swap.inputToken.tokenAmount)
+					// display price in base amount. So USDC amount / DFP2 amount = DFP2 price
+					swapPrice = parseFloat(swap.inputAmount) / parseFloat(swap.outputAmount)
 				}
 
 				// Calculate 24 hour high price
@@ -160,7 +171,7 @@ export async function handleCGTickerRequest(request: Request): Promise<Response>
 
 	// Cache API respects Cache-Control headers. Setting s-max-age to X
 	// will limit the response to be in cache for X seconds max
-	const cacheSeconds = 300;
+	const cacheSeconds = 450;
 
 	// Any changes made to the response here will be reflected in the cached value
 	response.headers.append('Cache-Control', 's-maxage=' + cacheSeconds);
