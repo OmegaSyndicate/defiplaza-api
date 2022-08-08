@@ -1,7 +1,7 @@
 import { Request, Router } from 'itty-router'
 import { handleCGHistoryRequest, handleCGPairsRequest, handleCGTickerRequest } from './exchanges/cg';
-import { handleDFP2CirculatingSupplyRequest, handleDFP2TotalSupplyRequest } from './exchanges/cmc';
-import { handleDFP2Request } from './exchanges/defiplaza';
+import { handleCMCAssetsRequest, handleCMCHistoryRequest, handleCMCOrderBookRequest, handleCMCSummaryRequest, handleCMCTickerRequest } from './exchanges/cmc';
+import { handleDFP2Request, handleDFP2CirculatingSupplyRequest, handleDFP2TotalSupplyRequest } from './exchanges/defiplaza';
 import { handleInfoRequest, handleMarketsRequest, handleOrderBookRequest, handleTradesRequest } from './exchanges/nomics';
 import { handleContact } from './lib/contact';
 
@@ -9,6 +9,15 @@ const router = Router();
 
 router.post("/contact", async (request: Request) => {
   return handleContact(request);
+});
+
+router.get("/health", (request: Request) => {
+  const plainHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
+  }
+
+  return new Response('okay', { headers: plainHeaders });
 });
 
 /**
