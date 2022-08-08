@@ -1,10 +1,12 @@
 import { Request } from "itty-router";
 import { generatePairId } from "./pairs";
+import { dfpResponse } from "./util";
 
-const GRAPH_ENDPOINT = 'https://gateway.thegraph.com/api/97814e28c86a7184f207dad2a234d813/subgraphs/id/DQAdCNpnahGhbMrS514pf6ZUEK39uQwLDaXPMfUa5C2u';
+const GRAPH_API_KEY = '9cdf6dcad1db0f0cfd885d48429fe527';
+const GRAPH_ENDPOINT = `https://gateway.thegraph.com/api/${GRAPH_API_KEY}/subgraphs/id/DQAdCNpnahGhbMrS514pf6ZUEK39uQwLDaXPMfUa5C2u`;
 
 const tokensQuery = `{
-	tokens(orderBy: symbol, orderDirection: asc) {
+	tokens(orderBy: symbol, orderDirection: asc, where: { tokenAmount_gte: 0 }) {
 		symbol
 		tokenAmount
 	}
@@ -61,10 +63,9 @@ export async function getTokens(): Promise<Token[]> {
 	return result.data.tokens;
 }
 
-export async function getSwapsByPairSinceTransaction(pair: string, txId?: string): Promise<any[]> {
-	let sinceTimestamp = 0;
+export async function getTimestampByTransactionId(txId: string): Promise<number> {
 	
-	if (txId) {
+	return cache('https://api.defiplaza.net/cache/thegraph/getTimestampByTransactionId', 86400 * 365, async () => {
 		const timestampQuery = `{
 			swap(id: "${txId}") {
 				timestamp
@@ -74,11 +75,11 @@ export async function getSwapsByPairSinceTransaction(pair: string, txId?: string
 		const swapResult = await sendRequest(timestampQuery);
 
 		if (swapResult.data.swap?.timestamp) {
-			sinceTimestamp = swapResult.data.swap.timestamp;
+			return swapResult.data.swap.timestamp;
 		}
-	}
 
-	return getSwapsByPair(pair, sinceTimestamp);
+		return 0;
+	});
 }
 
 export async function getSwapsByPair(pair: string, sinceTimestamp?: number, endTimestamp?: number): Promise<any[]> {
@@ -122,32 +123,37 @@ export async function getSwapsByPair(pair: string, sinceTimestamp?: number, endT
 }
 
 export async function getSwaps(sinceTimestamp: number): Promise<any[]> {
-	const swapsQuery = `{
-		swaps(orderBy:timestamp, orderDirection:asc, where: { timestamp_gt: ${sinceTimestamp} }) {
-			id
-			timestamp
-			transaction {
+	return cache('https://api.defiplaza.net/cache/thegraph/getSwaps', 600, async () => {
+	
+		const swapsQuery = `{
+			swaps(orderBy:timestamp, orderDirection:asc, where: { timestamp_gt: ${sinceTimestamp} }) {
 				id
+				timestamp
+				transaction {
+					id
+				}
+				sender,
+				pair {
+					id
+				}
+				inputToken {
+					symbol
+					tokenAmount
+				}
+				outputToken {
+					symbol
+					tokenAmount
+				}
+				inputAmount
+				outputAmount
+				swapUSD
 			}
-			sender,
-			pair {
-				id
-			}
-			inputToken {
-				symbol
-			}
-			outputToken {
-				symbol
-			}
-			inputAmount
-			outputAmount
-			swapUSD
-		}
-	}`;
+		}`;
 
-	const result = await sendRequest(swapsQuery);
+		const result = await sendRequest(swapsQuery);
 
-	return result.data.swaps as Swap[];
+		return result.data.swaps as Swap[];
+	});
 }
 
 export async function getActivePairs() {
@@ -196,4 +202,37 @@ export async function getDFP2() {
 		totalSupply: result.data.factories[0].dfp2TotalSupply,
 		tvl: result.data.factories[0].totalValueLockedUSD,
 	}
+}
+
+async function cache(url: string, duration: number, callback: Function): Promise<any> {
+	const cache = caches.default;
+	const cacheKey = url;
+
+	let response = await cache.match(cacheKey);
+
+	if (response) {
+		console.log("Returning from TheGraph cache:", cacheKey);
+		return await response.json();
+	}
+
+	// Result is not in cache
+	console.log("Result is not in TheGraph cache:", cacheKey);
+
+	const data = await callback();
+
+	response = dfpResponse(data);
+
+	// Cache API respects Cache-Control headers. Setting s-max-age to X
+	// will limit the response to be in cache for X seconds max
+	const cacheSeconds = duration || 300;
+
+	// Any changes made to the response here will be reflected in the cached value
+	response.headers.append('Cache-Control', 's-maxage=' + cacheSeconds);
+
+	// Store the fetched response as cacheKey
+	// Use waitUntil so you can return the response without blocking on
+	// writing to cache
+	await cache.put(cacheKey, response);
+
+	return data;
 }
