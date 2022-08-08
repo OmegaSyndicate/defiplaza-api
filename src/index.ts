@@ -59,13 +59,29 @@ router.get("/cg/historical_trades", (request: Request) => {
 });
 
 /**
- * CoinMarketCap DFP2 token
+ * CoinMarketCap token
  */
 router.get("/cmc/dfp2-total-supply", (request: Request) => {
   return handleDFP2TotalSupplyRequest(request);
 });
 router.get("/cmc/dfp2-circulating-supply", (request: Request) => {
   return handleDFP2CirculatingSupplyRequest(request);
+});
+
+router.get("/cmc/summary", (request: Request) => {
+  return handleCMCSummaryRequest(request);
+});
+router.get("/cmc/ticker", (request: Request) => {
+  return handleCMCTickerRequest(request);
+});
+router.get("/cmc/assets", (request: Request) => {
+  return handleCMCAssetsRequest(request);
+});
+router.get("/cmc/orderbook", (request: Request) => {
+  return handleCMCOrderBookRequest(request);
+});
+router.get("/cmc/trades/:market_pair", (request: Request) => {
+  return handleCMCHistoryRequest(request);
 });
 
 // 404
