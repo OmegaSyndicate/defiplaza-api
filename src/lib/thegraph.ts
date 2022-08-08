@@ -2,7 +2,7 @@ import { Request } from "itty-router";
 import { generatePairId } from "./pairs";
 import { dfpResponse } from "./util";
 
-const GRAPH_API_KEY = '9cdf6dcad1db0f0cfd885d48429fe527';
+declare var GRAPH_API_KEY: string;
 const GRAPH_ENDPOINT = `https://gateway.thegraph.com/api/${GRAPH_API_KEY}/subgraphs/id/DQAdCNpnahGhbMrS514pf6ZUEK39uQwLDaXPMfUa5C2u`;
 
 const tokensQuery = `{
