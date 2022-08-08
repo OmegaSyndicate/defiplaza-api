@@ -1,5 +1,5 @@
 import { Request } from "itty-router";
-import { getSwapsByPair, getSwapsByPairSinceTransaction, getTokens, Token } from "../lib/thegraph";
+import { getSwaps, getTimestampByTransactionId, getTokens, Token } from "../lib/thegraph";
 import { generatePairId } from "../lib/pairs";
 import { DEFIPLAZA_APP_URL, DEFIPLAZA_WEB_URL } from "./defiplaza";
 import { dfpResponse } from "../lib/util";
@@ -96,10 +96,27 @@ export async function handleTradesRequest(request: Request): Promise<Response> {
 	// Result is not in cache
 	console.log("Result is not in cache:", cacheKey);
 	const tokenPair = pair.split("_");
-	const swaps = await getSwapsByPairSinceTransaction(pair, lastTransactionId);
+
+	const dayAgo = Math.floor(new Date().getTime() / 1000) - 86400;
+	const swaps = await getSwaps(dayAgo);
+
+	let lastTimestamp = 0;
+
+	if (lastTransactionId) {
+		lastTimestamp = await getTimestampByTransactionId(lastTransactionId);
+	}
+	
 	let trades: Trade[] = [];
 
 	for (let swap of swaps) {
+		if (pair !== swap.pair.id) {
+			continue;
+		}
+
+		if (lastTimestamp > swap.timestamp) {
+			continue;
+		}
+
 		let base: Token;
 		let baseAmount: string;
 		let quote: Token;
@@ -141,7 +158,7 @@ export async function handleTradesRequest(request: Request): Promise<Response> {
 
 	// Cache API respects Cache-Control headers. Setting s-max-age to X
 	// will limit the response to be in cache for X seconds max
-	const cacheSeconds = 300;
+	const cacheSeconds = 60;
 
 	// Any changes made to the response here will be reflected in the cached value
 	response.headers.append('Cache-Control', 's-maxage=' + cacheSeconds);
