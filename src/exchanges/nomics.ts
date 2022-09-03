@@ -113,7 +113,7 @@ export async function handleTradesRequest(request: Request): Promise<Response> {
 			continue;
 		}
 
-		if (lastTimestamp > swap.timestamp) {
+		if (lastTimestamp >= swap.timestamp) {
 			continue;
 		}
 

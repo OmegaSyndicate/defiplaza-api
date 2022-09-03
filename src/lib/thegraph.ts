@@ -65,7 +65,7 @@ export async function getTokens(): Promise<Token[]> {
 
 export async function getTimestampByTransactionId(txId: string): Promise<number> {
 	
-	return cache('https://api.defiplaza.net/cache/thegraph/getTimestampByTransactionId', 86400 * 365, async () => {
+	return cache('https://api.defiplaza.net/cache/thegraph/getTimestampByTransactionId/' + txId, 86400 * 365, async () => {
 		const timestampQuery = `{
 			swap(id: "${txId}") {
 				timestamp
