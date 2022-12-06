@@ -6,6 +6,10 @@ route = "https://api.defiplaza.net/*"
 workers_dev = true
 compatibility_date = "2021-10-14"
 
+kv_namespaces = [
+  { binding = "BridgeRequests", id = "9d0e15e58ee04a68a61543c0c085e65e", preview_id = "9d0e15e58ee04a68a61543c0c085e65e" },
+]
+
 [build]
 command = "npm install && npm run build"
 [build.upload]

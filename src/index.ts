@@ -1,4 +1,5 @@
 import { Request, Router } from 'itty-router'
+import { radixBridgeConfirmations } from './cronjobs/radix';
 import { handleCGHistoryRequest, handleCGPairsRequest, handleCGTickerRequest } from './exchanges/cg';
 import { handleCMCAssetsRequest, handleCMCHistoryRequest, handleCMCOrderBookRequest, handleCMCSummaryRequest, handleCMCTickerRequest } from './exchanges/cmc';
 import { handleDFP2Request, handleDFP2CirculatingSupplyRequest, handleDFP2TotalSupplyRequest } from './exchanges/defiplaza';
@@ -92,6 +93,10 @@ router.get("/cmc/orderbook", (request: Request) => {
 router.get("/cmc/trades/:market_pair", (request: Request) => {
   return handleCMCHistoryRequest(request);
 });
+
+router.get("/timan", (request: Request) => {
+  return radixBridgeConfirmations(request);
+}); 
 
 // 404
 router.all("*", () => new Response("404, not found!", { status: 404 }))
