@@ -98,16 +98,30 @@ router.get("/cmc/trades/:market_pair", (request: Request) => {
 // 404
 router.all("*", () => new Response("404, not found!", { status: 404 }));
 
-// async function handleScheduled() {
-//   // Update prices for the cDEX
-//   return fetch(`https://backend.defiplaza.net/api/jobs/updateMidPrice`, {
-//     method: 'post',
-//     headers: {
-//       'X-Parse-Application-Id': 'defiplaza-parse',
-//       'X-Parse-Master-Key': PARSE_MASTER_KEY
-//     }
-//   });
-// }
+async function handleScheduled(event) {
+
+  let promises = [];
+
+  switch (event.cron) {
+    // You can set up to three schedules maximum.
+    case "*/5 * * * *":
+      promises.push(fetch(`https://radix.defiplaza.net/cronjob/new-pairs`));
+      break;
+    
+    case "59 * * * *":
+      promises.push(fetch(`https://radix.defiplaza.net/cronjob/analytics`));
+      break;
+   
+    case "59 23 * * *":
+      promises.push(fetch(`https://radix.defiplaza.net/cronjob/update-tokens`));
+      break;
+    default:
+      // await generatePrices();
+      break;
+  }
+
+  return Promise.all(promises);
+}
 
 /*
 This snippet ties our worker to the router we deifned above, all incoming requests
@@ -117,6 +131,6 @@ addEventListener('fetch', (evt) => {
   evt.respondWith(router.handle(evt.request))
 });
 
-// addEventListener('scheduled', event => {
-//   event.waitUntil(handleScheduled());
-// });
+addEventListener('scheduled', event => {
+  event.waitUntil(handleScheduled(event));
+});
