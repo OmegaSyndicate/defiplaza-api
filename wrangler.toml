@@ -9,4 +9,4 @@ main = "dist/worker.js"
 crons = ["*/5 * * * *", "59 * * * *", "59 23 * * *"]
 
 [build]
-command = "npm install && npm run build"
+command = "npm run build"

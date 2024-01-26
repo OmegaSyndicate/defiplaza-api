@@ -98,27 +98,34 @@ router.get("/cmc/trades/:market_pair", (request: Request) => {
 // 404
 router.all("*", () => new Response("404, not found!", { status: 404 }));
 
-async function handleScheduled(event) {
+async function handleScheduled(event: any) {
+
+  console.log(event);
 
   let promises = [];
 
-  switch (event.cron) {
-    // You can set up to three schedules maximum.
-    case "*/5 * * * *":
-      promises.push(fetch(`https://radix.defiplaza.net/cronjob/new-pairs`));
-      break;
+  promises.push(fetch(`https://radix.defiplaza.net/cronjob/new-pairs`));
+  promises.push(fetch(`https://radix.defiplaza.net/cronjob/analytics`));
+  promises.push(fetch(`https://radix.defiplaza.net/cronjob/il`));
+  promises.push(fetch(`https://radix.defiplaza.net/cronjob/apy`));
+
+  // switch (event.cron) {
+  //   // You can set up to three schedules maximum.
+  //   case "*/5 * * * *":
+  //     promises.push(fetch(`https://radix.defiplaza.net/cronjob/new-pairs`));
+  //     break;
     
-    case "59 * * * *":
-      promises.push(fetch(`https://radix.defiplaza.net/cronjob/analytics`));
-      break;
+  //   case "59 * * * *":
+  //     promises.push(fetch(`https://radix.defiplaza.net/cronjob/analytics`));
+  //     break;
    
-    case "59 23 * * *":
-      promises.push(fetch(`https://radix.defiplaza.net/cronjob/update-tokens`));
-      break;
-    default:
-      // await generatePrices();
-      break;
-  }
+  //   case "59 23 * * *":
+  //     promises.push(fetch(`https://radix.defiplaza.net/cronjob/update-tokens`));
+  //     break;
+  //   default:
+  //     // await generatePrices();
+  //     break;
+  // }
 
   return Promise.all(promises);
 }
