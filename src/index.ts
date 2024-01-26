@@ -105,6 +105,7 @@ async function handleScheduled(event: any) {
   let promises = [];
 
   promises.push(fetch(`https://radix.defiplaza.net/cronjob/new-pairs`));
+  promises.push(fetch(`https://radix.defiplaza.net/cronjob/last-price`));
   promises.push(fetch(`https://radix.defiplaza.net/cronjob/analytics`));
   promises.push(fetch(`https://radix.defiplaza.net/cronjob/il`));
   promises.push(fetch(`https://radix.defiplaza.net/cronjob/apy`));
