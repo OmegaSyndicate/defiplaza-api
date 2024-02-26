@@ -6,7 +6,7 @@ compatibility_date = "2021-10-14"
 main = "dist/worker.js"
 
 [triggers]
-crons = ["*/5 * * * *", "59 * * * *", "59 23 * * *"]
+crons = ["* * * * *", "*/5 * * * *", "59 23 * * *"]
 
 [build]
 command = "npm run build"
