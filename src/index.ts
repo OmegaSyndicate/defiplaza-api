@@ -100,7 +100,7 @@ router.all("*", () => new Response("404, not found!", { status: 404 }));
 
 async function handleScheduled(event: any) {
 
-  console.log(event);
+  console.log(JSON.stringify(event, null, 3));
 
   let promises = [];
 
@@ -109,7 +109,7 @@ async function handleScheduled(event: any) {
   promises.push(fetch(`https://radix.defiplaza.net/cronjob/analytics`));
   promises.push(fetch(`https://radix.defiplaza.net/cronjob/il`));
   promises.push(fetch(`https://radix.defiplaza.net/cronjob/apy`));
-  
+
 
   // switch (event.cron) {
   //   // You can set up to three schedules maximum.
