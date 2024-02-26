@@ -107,8 +107,8 @@ async function handleScheduled(event: any) {
     case "* * * * *":
       promises.push(fetch(`https://radix.defiplaza.net/cronjob/new-pairs`));
       // we cache CG response
-      // promises.push(fetch(`https://radix.defiplaza.net/cronjob/last-price`));
-      promises.push(fetch(`https://radix.defiplaza.net/api/cg/tickers?recache=true`));
+      promises.push(fetch(`https://radix.defiplaza.net/cronjob/last-price`));
+      // promises.push(fetch(`https://radix.defiplaza.net/api/cg/tickers?recache=true`));
 
       break;
     
