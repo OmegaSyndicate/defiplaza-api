@@ -109,6 +109,7 @@ async function handleScheduled(event: any) {
   promises.push(fetch(`https://radix.defiplaza.net/cronjob/analytics`));
   promises.push(fetch(`https://radix.defiplaza.net/cronjob/il`));
   promises.push(fetch(`https://radix.defiplaza.net/cronjob/apy`));
+  
 
   // switch (event.cron) {
   //   // You can set up to three schedules maximum.
