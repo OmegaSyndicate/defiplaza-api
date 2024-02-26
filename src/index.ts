@@ -100,8 +100,6 @@ router.all("*", () => new Response("404, not found!", { status: 404 }));
 
 async function handleScheduled(event: any) {
 
-  console.log(JSON.stringify(event, null, 3));
-
   let promises = [];
 
   promises.push(fetch(`https://radix.defiplaza.net/cronjob/new-pairs`));
