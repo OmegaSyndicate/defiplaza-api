@@ -106,7 +106,10 @@ async function handleScheduled(event: any) {
     // You can set up to three schedules maximum.
     case "* * * * *":
       promises.push(fetch(`https://radix.defiplaza.net/cronjob/new-pairs`));
-      promises.push(fetch(`https://radix.defiplaza.net/cronjob/last-price`));
+      // we cache CG response
+      // promises.push(fetch(`https://radix.defiplaza.net/cronjob/last-price`));
+      promises.push(fetch(`https://radix.defiplaza.net/api/cg/tickers?recache=true`));
+
       break;
     
     case "*/5 * * * *":
