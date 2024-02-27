@@ -72,10 +72,10 @@ export async function handleDFP2CirculatingSupplyRequest(request: Request): Prom
 	let locked = 0;
 
 	locked += await getDFP2Balance(BLACKHOLE_ADDRESS);
-	locked += await getDFP2Balance(JAZZER_ADDRESS);
-	locked += await getDFP2Balance(TREBEL_ADDRESS);
-	locked += await getDFP2Balance(UIGUY_ADDRESS);
-	locked += await getDFP2Balance(MULTISIG_ADDRESS);
+	// locked += await getDFP2Balance(JAZZER_ADDRESS);
+	// locked += await getDFP2Balance(TREBEL_ADDRESS);
+	// locked += await getDFP2Balance(UIGUY_ADDRESS);
+	// locked += await getDFP2Balance(MULTISIG_ADDRESS);
 
 	const totalSupply = dfp2.totalSupply - locked
 
