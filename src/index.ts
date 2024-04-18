@@ -5,6 +5,7 @@ import { handleDFP2Request, handleDFP2CirculatingSupplyRequest, handleDFP2TotalS
 import { handleInfoRequest, handleMarketsRequest, handleOrderBookRequest, handleTradesRequest } from './exchanges/nomics';
 import { handleContact } from './lib/contact';
 import {
+  PrivateKey,
   generateRandomNonce
 } from "@radixdlt/radix-engine-toolkit";
 import { dfpResponse, plainResponse } from './lib/util';
@@ -29,9 +30,15 @@ router.get("/health", (request: Request) => {
 });
 
 router.get("/timan", (request: Request) => {
+
+  const notaryPrivateKey = new PrivateKey.Secp256k1(
+    "49cd15ba31852f3f2e7f7d6cbedb064f7ee658f74b2c9b89daaaaaaaaaaaaaaa"
+  );
+
   const nonce = generateRandomNonce();
   return dfpResponse({
-    nonce: nonce
+    nonce: nonce,
+    public: notaryPrivateKey.publicKey()
   })
 });
 
