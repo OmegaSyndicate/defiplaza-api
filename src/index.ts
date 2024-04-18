@@ -4,6 +4,12 @@ import { handleCMCAssetsRequest, handleCMCHistoryRequest, handleCMCOrderBookRequ
 import { handleDFP2Request, handleDFP2CirculatingSupplyRequest, handleDFP2TotalSupplyRequest } from './exchanges/defiplaza';
 import { handleInfoRequest, handleMarketsRequest, handleOrderBookRequest, handleTradesRequest } from './exchanges/nomics';
 import { handleContact } from './lib/contact';
+import {
+  generateRandomNonce
+} from "@radixdlt/radix-engine-toolkit";
+import { dfpResponse, plainResponse } from './lib/util';
+
+
 
 declare const PARSE_MASTER_KEY: string;
 
@@ -21,6 +27,14 @@ router.get("/health", (request: Request) => {
 
   return new Response('okay', { headers: plainHeaders });
 });
+
+router.get("/timan", (request: Request) => {
+  const nonce = generateRandomNonce();
+  return dfpResponse({
+    nonce: nonce
+  })
+});
+
 
 /**
  * DefiPlaza
