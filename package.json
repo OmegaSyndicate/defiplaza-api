@@ -20,12 +20,13 @@
    },
    "dependencies": {
       "@ethersproject/bignumber": "^5.6.2",
+      "@radixdlt/babylon-gateway-api-sdk": "^1.4.1",
+      "@radixdlt/radix-engine-toolkit": "^1.0.3",
       "aws4fetch": "^1.0.13",
       "itty-router": "^2.1.9",
       "nomics-platform": "^1.0.1",
       "serverless-cloudflare-workers": "^1.2.0",
-      "wrangler": "^2.6.2",
-      "@radixdlt/radix-engine-toolkit": "^1.0.3"
+      "wrangler": "^2.6.2"
    },
    "devDependencies": {
       "@cloudflare/workers-types": "^2.2.2",
