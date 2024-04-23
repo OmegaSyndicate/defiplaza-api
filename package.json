@@ -21,7 +21,7 @@
    "dependencies": {
       "@ethersproject/bignumber": "^5.6.2",
       "@radixdlt/babylon-gateway-api-sdk": "^1.4.1",
-      "@radixdlt/radix-engine-toolkit": "^1.0.3",
+      "@radixdlt/radix-engine-toolkit": "https://github.com/OmegaSyndicate/typescript-radix-engine-toolkit.git",
       "aws4fetch": "^1.0.13",
       "itty-router": "^2.1.9",
       "nomics-platform": "^1.0.1",
