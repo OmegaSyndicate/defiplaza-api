@@ -1,26 +1,27 @@
-const path = require('path')
+const path = require('path');
 
 module.exports = {
-  entry: './src/index.ts',
-  output: {
-    filename: 'worker.js',
-    path: path.join(__dirname, 'dist'),
-  },
-  devtool: 'cheap-module-source-map',
-  mode: 'development',
-  resolve: {
-    extensions: ['.ts', '.tsx', '.js']
-  },
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        loader: 'ts-loader',
-        options: {
-          // transpileOnly is useful to skip typescript checks occasionally:
-          // transpileOnly: true,
-        },
-      },
-    ],
-  },
-}
+   entry: './src/index.ts',
+   output: {
+      filename: 'worker.js',
+      path: path.join(__dirname, 'dist'),
+   },
+   devtool: 'cheap-module-source-map',
+   mode: 'development',
+   resolve: {
+      extensions: ['.ts', '.tsx', '.js'],
+      fallback: { crypto: require.resolve('crypto-browserify'), stream: require.resolve('stream-browserify'), path: false, fs: false },
+   },
+   module: {
+      rules: [
+         {
+            test: /\.tsx?$/,
+            loader: 'ts-loader',
+            options: {
+               // transpileOnly is useful to skip typescript checks occasionally:
+               // transpileOnly: true,
+            },
+         },
+      ],
+   },
+};
