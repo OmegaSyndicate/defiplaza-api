@@ -4,26 +4,6 @@ import { handleCMCAssetsRequest, handleCMCHistoryRequest, handleCMCOrderBookRequ
 import { handleDFP2Request, handleDFP2CirculatingSupplyRequest, handleDFP2TotalSupplyRequest } from './exchanges/defiplaza';
 import { handleInfoRequest, handleMarketsRequest, handleOrderBookRequest, handleTradesRequest } from './exchanges/nomics';
 import { handleContact } from './lib/contact';
-import {
-  Bytes,
-  ManifestBuilder,
-  PrivateKey,
-  TransactionManifest,
-  address,
-  bucket,
-  decimal,
-  enumeration,
-  expression,
-  generateRandomNonce
-} from "@radixdlt/radix-engine-toolkit";
-import { ACCOUNT_ADDRESS, XRD_RESOURCE_ADDRESS, dfpResponse, plainResponse } from './lib/util';
-import { sendTransaction } from './lib/transaction';
-import Decimal from "decimal.js";
-
-
-
-declare const PRIVATE_KEY: Bytes;
-declare const PARSE_MASTER_KEY: string;
 
 const router = Router();
 
@@ -39,91 +19,6 @@ router.get("/health", (request: Request) => {
 
   return new Response('okay', { headers: plainHeaders });
 });
-
-router.get("/timan", async (request: Request) => {
-
-  const chunkPerTransaction = 20;
-
-    const addresses: { address: string, amount: number }[] = [];
-
-    try {
-      const jsonArray: { address: string, amount: string }[] = [{
-        address: 'account_rdx169duxdjryze9kj0007pwm80fdfazd7732n8p4cqkhccwksd6zh47nr',
-        amount: '1'
-      }];
-      // const jsonArray: { address: string, amount: string }[] = await csv().fromFile('./airdrop.csv');
-
-      // const rl = readline.createInterface({
-      // 	input: fs.createReadStream('./airdrop.csv'),
-      // 	crlfDelay: Infinity
-      // });
-
-
-      // rl.on('line', (line) => {
-      for (let line of jsonArray) {
-        console.log(line);
-
-        if (!line.address) {
-          continue;
-        }
-
-        // const valid = validateAddress(line.address);
-
-        // console.log(`${line.address}: ${parseFloat(line.amount)}`, valid);
-
-        // if (valid) {
-          addresses.push({
-            address: line.address,
-            amount: parseFloat(line.amount)
-          });
-        // }
-      }
-
-      // await events.once(rl, 'close');
-    }
-    catch (err) {
-      console.error(err);
-    }
-
-    console.log(`Sending to ${addresses.length} addresses.`);
-
-
-    // Send tokens per 50 addresses
-    let x = 0;
-    for (let i = 0; i < addresses.length; i += chunkPerTransaction) {
-      console.log(`Sending ${i} to ${(i + chunkPerTransaction)}`);
-
-      const chunk = addresses.slice(i, i + chunkPerTransaction);
-      const totalAmount = chunk.reduce((total, t) => total + t.amount, 0)
-
-      // console.log(chunk[0], chunk[chunk.length - 1]);
-
-      // We then build the transaction manifest
-      const NONE = enumeration(0);
-      const builder = new ManifestBuilder()
-        .callMethod(ACCOUNT_ADDRESS, "lock_fee", [decimal(10)])
-        .callMethod(ACCOUNT_ADDRESS, "withdraw", [address(XRD_RESOURCE_ADDRESS), decimal(totalAmount)]);
-
-      for (let receipient of chunk) {
-        // address = "account_tdx_2_1289a0cvm40qfw3amdruk732yh20w6pmwapc0mdqr4hj4dvsqc246la";
-
-        builder.takeFromWorktop(XRD_RESOURCE_ADDRESS, new Decimal(receipient.amount), (builder, bucketId) =>
-          builder.callMethod(receipient.address, 'try_deposit_or_refund', [bucket(bucketId), NONE])
-        )
-        x++;
-      }
-
-      builder.callMethod(ACCOUNT_ADDRESS, "deposit_batch", [expression("EntireWorktop")]);
-
-      const manifest: TransactionManifest = builder.build();
-
-      await sendTransaction(manifest);
-
-      console.log(x, 'done');
-    }
-  
-});
-
 
 /**
  * DefiPlaza

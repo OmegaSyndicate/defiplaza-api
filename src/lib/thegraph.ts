@@ -3,7 +3,9 @@ import { generatePairId } from "./pairs";
 import { dfpResponse } from "./util";
 
 declare var GRAPH_API_KEY: string;
-const GRAPH_ENDPOINT = `https://gateway.thegraph.com/api/${GRAPH_API_KEY}/subgraphs/id/DQAdCNpnahGhbMrS514pf6ZUEK39uQwLDaXPMfUa5C2u`;
+const API_KEY = '72e47dc3f1287de319e32cc99038f88e';
+// const GRAPH_ENDPOINT = `https://gateway.thegraph.com/api/${GRAPH_API_KEY}/subgraphs/id/DQAdCNpnahGhbMrS514pf6ZUEK39uQwLDaXPMfUa5C2u`;
+const GRAPH_ENDPOINT = `https://gateway-arbitrum.network.thegraph.com/api/${API_KEY}/subgraphs/id/4z9FBF12CrfoQJhAkWicqzY2fKYN9QRmuzSsizVXhjKa`;
 
 const tokensQuery = `{
 	tokens(orderBy: symbol, orderDirection: asc, where: { tokenAmount_gte: 0 }) {
